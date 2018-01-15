@@ -1,0 +1,125 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-11-07 10:48+0600\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+
+#: .\__init__.py:5
+msgid "Iskcon"
+msgstr ""
+
+#: .\__init__.py:7
+msgid "Can_moderate"
+msgstr "Может модерировать"
+
+#: .\__init__.py:8
+msgid "Auth"
+msgstr "Авторизация"
+
+#: .\__init__.py:9
+msgid "Sites"
+msgstr "Сайты"
+
+#: .\admin.py:42
+msgid "Personal info"
+msgstr ""
+
+#: .\admin.py:43
+msgid "Important dates"
+msgstr ""
+
+#: .\admin.py:44
+msgid "Permissions"
+msgstr ""
+
+#: .\templates\comments\base.html.py:4
+msgid "Responses for page"
+msgstr ""
+
+#: .\templates\comments\posted.html.py:3
+#: .\templates\comments\ad_board\posted.html.py:4
+#: .\templates\comments\article\posted.html.py:4
+#: .\templates\comments\electronic_catalog\posted.html.py:4
+#: .\templates\comments\media_content\posted.html.py:4
+#: .\templates\comments\news\posted.html.py:4
+msgid "Thanks for commenting"
+msgstr ""
+
+#: .\templates\comments\posted.html.py:11
+msgid "Thanks for posting your comment"
+msgstr ""
+
+#: .\templates\comments\posted.html.py:13
+msgid ""
+"\n"
+"      We have received your comment, and posted it on the web site.<br/>\n"
+"      You will be sent back to the article...\n"
+"      "
+msgstr ""
+
+#: .\templates\comments\posted.html.py:19
+msgid "Back to the article"
+msgstr ""
+
+#: .\templates\comments\ad_board\posted.html.py:7
+#: .\templates\comments\article\posted.html.py:7
+#: .\templates\comments\electronic_catalog\posted.html.py:7
+#: .\templates\comments\media_content\posted.html.py:7
+#: .\templates\comments\news\posted.html.py:7
+msgid "Thank you for your comment"
+msgstr ""
+
+#: .\templates\comments\ad_board\preview.html.py:4
+#: .\templates\comments\ad_board\preview.html.py:12
+#: .\templates\comments\ad_board\preview.html.py:24
+#: .\templates\comments\article\preview.html.py:4
+#: .\templates\comments\article\preview.html.py:12
+#: .\templates\comments\article\preview.html.py:24
+#: .\templates\comments\electronic_catalog\preview.html.py:4
+#: .\templates\comments\electronic_catalog\preview.html.py:12
+#: .\templates\comments\electronic_catalog\preview.html.py:24
+#: .\templates\comments\media_content\preview.html.py:4
+#: .\templates\comments\media_content\preview.html.py:11
+#: .\templates\comments\media_content\preview.html.py:23
+#: .\templates\comments\news\preview.html.py:4
+#: .\templates\comments\news\preview.html.py:12
+#: .\templates\comments\news\preview.html.py:24
+msgid "Preview your comment"
+msgstr ""
+
+#: .\templates\comments\ad_board\preview.html.py:10
+#: .\templates\comments\ad_board\preview.html.py:22
+#: .\templates\comments\article\preview.html.py:10
+#: .\templates\comments\article\preview.html.py:22
+#: .\templates\comments\electronic_catalog\preview.html.py:10
+#: .\templates\comments\electronic_catalog\preview.html.py:22
+#: .\templates\comments\media_content\preview.html.py:9
+#: .\templates\comments\media_content\preview.html.py:21
+#: .\templates\comments\news\preview.html.py:10
+#: .\templates\comments\news\preview.html.py:22
+msgid "Please correct the error below"
+msgid_plural "Please correct the errors below"
+msgstr[0] ""
+msgstr[1] ""
+
+#: .\templates\forum\notify.txt.py:5
+#, python-format
+msgid ""
+"Вы получили это сообщение, потому что Вы подписывались на тему форума на "
+"сайте %(site_name)s.  Перейдите по ссылке, чтобы изменить подписку: http://%"
+"(domain)s%(url)s"
+msgstr ""

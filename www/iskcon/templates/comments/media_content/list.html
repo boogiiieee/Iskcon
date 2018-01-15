@@ -1,0 +1,26 @@
+{% load thumbnail %}
+<div id="list_comments">
+	<h5>Комментарии ({{ comment_list|length }}):</h5>
+	{% if comment_list %}
+		<ul class="no_style_list">
+		{% for comment in comment_list %}
+			<li id="comment_{{ comment.id }}" class="margin_b">
+				<div class="media">
+					{% thumbnail comment.user.get_profile.get_image "64x64" crop="center" format='PNG' as im %}
+						<a class="pull-left prettyPhoto" href="{{ MEDIA_URL }}{{ comment.user.get_profile.get_image }}" data-rel="prettyPhoto">
+							<img class="media-object" src="{{ im.url }}"/>
+						</a>
+					{% empty %}
+						<img class="pull-left media-object" src="{{ STATIC_URL }}img/no_foto.jpg"/>
+					{% endthumbnail %}
+					<div class="media-body">
+						<small><i>{{ comment.submit_date|date:"d.m.Y в H:i" }} <strong class="orange hover">{% if comment.user %}{{ comment.user.get_full_name|default:comment.user }}{% else %}{{ comment.name }}{% endif %}</strong></a> написал(-а):</i></small>
+						{{ comment.comment|linebreaks }}
+					</div>
+				</div>
+				<hr/>
+			</li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+</div>

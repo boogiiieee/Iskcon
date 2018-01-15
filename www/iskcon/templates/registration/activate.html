@@ -1,0 +1,22 @@
+{% extends "default.html" %}
+
+{% block title %}Активация учетной записи{% endblock %}
+
+{% block breadcrumb_item %}
+	<li class="active">Активация учетной записи</li>
+{% endblock %}
+
+{% block content %}
+	<div class="row-fluid">
+		<div class="span12 margin_b">
+			<h1>Активация учетной записи</h1>
+			
+			{% if account %}
+				<p>Ваша учетная запись "{{ account }}" активирована! <a href="{% url auth_login %}">Войти</a> на сайт.</p>
+			{% else %}
+				<p>Ошибка активации учетной записи! Обратитесь к администратору.</p>
+			{% endif %}
+			
+		</div>
+	</div>
+{% endblock %}

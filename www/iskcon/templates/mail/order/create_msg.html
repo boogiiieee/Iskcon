@@ -1,0 +1,17 @@
+{% extends "mail/mail.html" %}
+
+{% block content %}
+	<h2>Спасибо за заказ!</h2>
+	<p>Ваш заказ <strong>№{{ obj.id }}</strong> принят.</p>
+	<p>В ближайшее время с Вами свяжется наш менеджер.</p>
+	
+	<p>
+		<ul>
+			<li><strong>ФИО:</strong> {{ obj.get_user_name }}</li>
+			<li><strong>E-mail:</strong> {{ obj.get_user_email|default:'-' }}</li>
+			{% if obj.get_phone %}<li><strong>Телефон:</strong> {{ obj.get_user_phone|default:'-' }}</li>{% endif %}
+			<li><strong>Заказ:</strong> {{ obj.product.get_title }}</li>
+			<li><strong>Дата:</strong> {{ obj.get_created_at|date:"d.m.Y" }}</li>
+		</ul>
+	</p>
+{% endblock %}

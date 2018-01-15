@@ -1,0 +1,90 @@
+{% load adv_cache call_tag %}
+
+<script>
+    $(document).ready(function() {
+        $('.redactor').redactor({lang:'ru', focus:false});
+        
+        $('.editable').editable({
+            ajaxOptions: { dataType:'json' },
+            type: 'text',
+            value: '',
+            format: 'dd.mm.yyyy',
+            datepicker: {
+                language: 'ru',
+            },
+            display: function(value) {
+                if (value && value>$.now()){
+                    $(this).attr("title", "Заблокировано до "+value.getDate()+'.'+value.getMonth()+1+'.'+value.getFullYear());
+                    $(this).addClass("active");
+                }else{
+                    if (value && value<=$.now()){
+                        $(this).removeClass("active");
+                        $(this).attr("title", "Заблокировать");
+                    }
+                }
+            },
+            success: function(response, newValue) {
+                if(!response['success']) return response['msg'];
+                if (newValue>$.now()){
+                    $('.conf_right_block').prepend('<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button>Пользователь успешно заблокирован.</div>');
+                }else{
+                    if ($(this).hasClass("active")){
+                        $('.conf_right_block').prepend('<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button>Пользователь успешно разблокирован.</div>');
+                    }
+                }
+            },
+            error: function(response, newValue) {
+                $('.conf_right_block').prepend('<div class="alert alert-error"><button type="button" class="close" data-dismiss="alert">&times;</button>Произошла ошибка. Повторите попытку позже.</div>');
+                return 'Произошла ошибка. Повторите попытку позже.';
+            }
+        });
+    });
+    
+    $.fn.editableform.buttons = '<button type="submit" class="btn btn-warning editable-submit"><i class="icon-ok icon-white"></i></button>' + '<button type="button" class="btn editable-cancel"><i class="icon-remove"></i></button>'; 
+</script>
+
+{% call group.get_cache_key with request.user 'user_list_' as group_user_list_cache_key %}
+{% cache 86400 group_user_list_left group_user_list_cache_key group.modified %}
+    {% for user in user_list %}
+        {% call group.is_leader with user as user_is_leader %}
+        {% call group.is_banned with user as is_banned %}
+        <li>
+            <div class="block {% cycle ,bg %}">
+                <div class="pad">
+                    <div class="span10">
+                        <i class="icon-user" {% if user_is_leader %}style="color:#FF9900" title="Лидер конференции"{% else %}title="Пользователь конференции"{% endif %}></i>&nbsp;{{ user.get_full_name|default:user.username }} 
+                    </div>	
+                    {% if is_staff and not user_is_leader %}
+                        <div class="span2 t_right">
+                            <div class="row-fluid">
+                                {% call group.is_in_group with user as is_in_group %}
+                                {% if is_in_group %}
+                                    <a href="{% url conference_group_subscribe_admin_del group_id=group.id user_id=user.id %}" class="a_icon span4 offset4" title="Отписать пользователя" onclick="return confirm('Вы уверены?');">
+                                        <i class="icon-remove"></i>
+                                    </a>
+                                    {% if is_banned %}
+                                        <a href="{% url conference_ban_del group_id=group.id user_id=user.id %}" class="a_icon span4 active" title="Заблокирован до {{ is_banned|date:'d.m.Y' }}. Разблокировать?">
+                                            <i class="icon-lock"></i>
+                                        </a>
+                                    {% else %}
+                                        <a href="#" class="a_icon span4 editable editable-click" data-pk="{{ group.id }}-{{ user.id }}" data-date-language="ru" data-url="{% url conference_ban group_id=group.id user_id=user.id %}" data-type="date" data-viewformat="dd.mm.yyyy" data-title="Заблокировать до" title="Заблокировать" data-placeholder="дд.мм.гггг">
+                                            <i class="icon-lock"></i>
+                                        </a>
+                                    {% endif %}
+                                {% else %}
+                                    <a href="{% url conference_group_subscribe_admin group_id=group.id user_id=user.id %}" class="a_icon offset4 span4" title="Подписать пользователя">
+                                        <i class="icon-bullhorn"></i>
+                                    </a>
+                                    <a href="{% url conference_group_subscribe_admin_cancel group_id=group.id user_id=user.id %}" class="a_icon span4" title="Отклонить заявку пользователя">
+                                        <i class="icon-ban-circle"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </li>
+    {% endfor %}
+{% endcache %}

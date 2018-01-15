@@ -1,0 +1,14 @@
+{{ message.get_text }}
+
+{% for file in message.get_files %}
+	<p>
+		<a href="http://{{ domain }}{{ file.file.url }}" target="_blank">{{ file.get_title }}</a>
+	</p>
+{% endfor %}
+
+{% if sign %}
+	<br>
+	---
+	<br>
+	{{ sign }}
+{% endif %}

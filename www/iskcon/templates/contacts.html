@@ -1,0 +1,38 @@
+{% extends "default.html" %}
+
+{% block extra_media %}{% endblock %}
+
+{% block content %}
+	{% if form.errors %}
+		<div class="alert alert-error">
+			<button type="button" class="close" data-dismiss="alert">&times;</button>
+			<strong>Форма заполнена неправильно. Исправьте ошибки и повторите попытку.</strong> 
+		</div>
+	{% endif %}
+
+	<div class="row-fluid">
+		<form class="form-horizontal" action="{% url contacts %}" method="post">{% csrf_token %}
+			<div class="row-fluid">
+				<div class="span4  control-group {% if form.name.errors %} error{% endif %}">
+					{% if form.name.errors %}<span class="help-inline error">{{ form.name.errors }}</span>{% endif %}
+					{{ form.name }}
+				</div>
+				<div class="span4 control-group {% if form.email.errors %} error{% endif %}">
+					{% if form.email.errors %}<span class="help-inline error">{{ form.email.errors }}</span>{% endif %}
+					{{ form.email }}
+				</div>
+				<div class="span4 control-group {% if form.phone.errors %} error{% endif %}">
+					{% if form.phone.errors %}<span class="help-inline error">{{ form.phone.errors }}</span>{% endif %}
+					{{ form.phone }}
+				</div>
+			</div>
+			<div class="row-fluid control-group margin_b{% if form.msg.errors %} error{% endif %}">
+				{% if form.msg.errors %}<span class="help-inline error">{{ form.msg.errors }}</span>{% endif %}
+				{{ form.msg }}
+			</div>
+			<div class="row-fluid">
+				<input class="btn btn-warning" type="submit" value="Отправить">
+			</div>
+		</form>
+	</div>
+{% endblock %}

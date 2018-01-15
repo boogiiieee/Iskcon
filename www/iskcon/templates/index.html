@@ -1,0 +1,44 @@
+{% extends "2col.html" %}
+{% load thumbnail news_tags comments pymorphy_tags %}
+
+{% block flatpage_title %}{% endblock %}
+
+{% block extra_media %}{% endblock %}
+
+{% block breadcrumb %}{% endblock %}
+
+{% block leftblock %}
+	{% if aticle_list %}
+		{% for item in aticle_list %}
+			<div class="row-fluid">
+				<div class="media">
+					{% if item.get_image %}
+						{% thumbnail item.get_image "350x200" crop="center" format='PNG' as im %}
+							<a class="pull-left prettyPhoto" href="{{ MEDIA_URL }}{{ item.get_image }}" data-rel="prettyPhoto" title="{{ item.get_title }}">
+								<img class="media-object" src="{{ im.url }}" alt="{{ item.get_title }}"/>
+							</a>
+						{% endthumbnail %}
+					{% endif %}
+					
+					<div class="media-body">
+						<h4 class="media-heading"><a href="{{ item.get_absolute_url }}">{{ item.get_title }}</a></h4>
+						{{ item.get_announcement|safe|linebreaks }}
+					</div>
+				</div>
+			</div>
+			{% get_comment_count for item as comment_count %}
+			<div class="row-fluid margin_b">
+				<div class="bottom-article">
+					<ul>
+						<li class="muted"><i class="icon-calendar"></i><small class="hover"> {{ item.get_created|date:"d.m.Y" }}</small></li>
+						<li class="muted"><i class="icon-folder-open"></i> <a class="hover" href="{% url article_url %}">Статьи</a></li>
+						<li class="muted"><i class="icon-comments"></i> <small class="hover">{{ comment_count }} {{"Комментарий"|plural:comment_count}}</small></li>
+						<li class="pull-right border_none"><a href="{{ item.get_absolute_url }}" class="pull-right">Читать далее <i class="icon-angle-right"></i></a></li>
+					</ul>
+					<div class="clearfix"></div>
+				</div>
+			</div>
+		{% endfor %}
+		{% include "paginate.html" %}
+	{% endif %}
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "ad_board/full.html" %}
+{% load thumbnail %}
+
+{% block title %}{{ cat.get_title }}{% endblock %}
+{% block description %}{{ cat.get_description }}{% endblock %}
+{% block keywords %}{{ cat.get_keywords }}{% endblock %}
+
+{% block flatpage %}
+	<h1>{{ cat.get_title }}</h1>
+	{% if cat.get_text %}
+		<div class="margin_b">{{ cat.get_text|safe }}</div>
+	{% endif %}
+{% endblock %}
+
+{% block breadcrumb_item %}
+	<li><a href="{% url ad_board_url %}">Доска объявлений</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+	{% if cat %}
+		<li class="active">{{ cat.get_title }}</li>
+	{% endif %}
+{% endblock %}
+
+{% block leftblock %}
+	{% if items_list %}
+		{% for item in items_list %}
+			{% include "ad_board/ad.html" %}
+			<hr/>
+		{% endfor %}
+	{% else %}
+		<div class="row-fluid margin_b"><h2>Список объявлений пуст</h2></div>
+	{% endif %}
+	
+	{% include "paginate.html" %}
+{% endblock %}

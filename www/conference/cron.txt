@@ -1,0 +1,7 @@
+0 * * * * /usr/bin/flock -xn /home/iskcon/venv/iskcon/web/lock/conference_send_email.lock /home/iskcon/venv/iskcon/local/bin/python /home/iskcon/venv/iskcon/web/www/manage.py conference_send_email --settings=www.settings_prod
+0 20 * * * /usr/bin/flock -xn /home/iskcon/venv/iskcon/web/lock/conference_send_one_email.lock /home/iskcon/venv/iskcon/local/bin/python /home/iskcon/venv/iskcon/web/www/manage.py conference_send_one_email --settings=www.settings_prod
+
+0 0 * * * /usr/bin/flock -xn /home/iskcon/venv/iskcon/web/lock/conference_delete_messages.lock /home/iskcon/venv/iskcon/local/bin/python /home/iskcon/venv/iskcon/web/www/manage.py conference_delete_messages --settings=www.settings_prod
+
+0,20,40 * * * * /usr/bin/flock -xn /home/iskcon/venv/iskcon/web/lock/getmail.lock /home/iskcon/venv/iskcon/local/bin/python /home/iskcon/venv/iskcon/web/www/manage.py getmail --settings=www.settings_prod
+10,30,50 * * * * /usr/bin/flock -xn /home/iskcon/venv/iskcon/web/lock/conference_get_email.lock /home/iskcon/venv/iskcon/local/bin/python /home/iskcon/venv/iskcon/web/www/manage.py conference_get_email --settings=www.settings_prod

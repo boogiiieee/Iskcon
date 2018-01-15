@@ -1,0 +1,31 @@
+{% load i18n permissions_widget_tags %}
+
+<table class="module aligned">
+    <tr>
+        <td></td>
+        {% for permission_type in permission_types %}
+        <th>
+            {% with permission_type|capfirst as perm_title %}
+                {% trans perm_title %}
+            {% endwith %}
+        </th>
+        {% endfor %}
+    </tr>
+
+    {% for row in table %}
+    <tr>
+        <th>
+            {{ row.model|capfirst }}
+        </th>
+        {% for permission_type in permission_types %}
+            {% with row.permissions|get_item:permission_type as permission %}
+            <td>
+                {% if permission != None %}
+                    <input name="{{ name }}" {% if permission.value in value %}checked="checked"{% endif %} value="{{ permission.value }}" type="checkbox" />
+                {% endif %}
+            </td>
+            {% endwith %}
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>

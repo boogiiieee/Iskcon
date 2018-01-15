@@ -1,0 +1,94 @@
+{% extends "default.html" %}
+{% load thumbnail %}
+
+{% block title %}{{ request.flatpage.get_title|default:"Личные сообщения - Входящие сообщения" }}{% endblock %}
+{% block description %}{{ request.flatpage.get_description }}{% endblock %}
+{% block keywords %}{{ request.flatpage.get_keywords }}{% endblock %}
+
+{% block extra_media %}{% endblock %}
+
+{% block content_all %}
+	{% block breadcrumb %}
+		<div class="row-fluid">
+			<div class="span12">
+				<div class="block_item">
+					<ul class="breadcrumb">
+						<li><a href="/">Главная</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+						{% block breadcrumb_item %}
+							<li class="active">{{ request.flatpage.get_title }}</li>
+						{% endblock %}
+					</ul>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+	<div class="row-fluid">
+		<div class="span3">
+			{% block leftblock %}
+				<ul class="profile_ls no_style_list">
+					<li {% ifequal profile_ls 1%}class="active"{% endifequal %}><a href="{% url add_multicasting_sms_url %}">Новое сообщение</a></li>
+					<li {% ifequal profile_ls 2%}class="active"{% endifequal %}><a href="{% url multicasting_url %}">Входящие {% if count_ls %}<strong>({{ count_ls }})</strong>{% endif %}</a></li>
+					<li {% ifequal profile_ls 3%}class="active"{% endifequal %}><a href="{% url multicasting_outbox_url %}">Исходящие</a></li>
+					{% if user.leader_group_perm_rel.all %}<li {% ifequal profile_ls 4%}class="active"{% endifequal %}><a href="{% url multicasting_perm_url %}">Настройка прав пользователей группы</a></li>{% endif %}
+				</ul>
+			{% endblock %}
+		</div>
+		<div class="span9">
+			<div id="right_block">
+				{% include "messages.html" %}
+
+				{% block flatpage %}
+					{% block flatpage_title %}{% if request.flatpage.get_title %}<h1>{{ request.flatpage.get_title }}</h1>{% endif %}{% endblock %}
+					{% if request.flatpage.get_content %}
+						<div class="margin_b">{{ request.flatpage.get_content|safe }}</div>
+					{% endif %}
+				{% endblock %}
+				{% block rightblock %}
+				<table class="table table-bordered">
+					<thead>
+						<tr>
+							<th colspan="3">Сообщения</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% if items_list %}
+							{% for item in items_list %}
+								<tr {% if item.is_new %}class="warning"{% endif %}>
+									<td valign="middle" width="45">{% if item.is_new %}<img class="sms_img" title="Новое сообщение" src="{{ STATIC_URL }}image/topic_unread.gif">{% else %}<img  class="sms_img" src="{{ STATIC_URL }}image/topic_read.gif">{% endif %}</td>
+									<td>
+										<div><a href="{{ item.get_inbox_item_url }}"><strong>{{ item.sms.get_title }} {% if item.sms.file %}<i class="icon-link"></i>{% endif %}</strong></a></div>
+										<div><em><small>От <span class="orange">{{ item.get_user }}</span> {% if item.get_created <= date_now_1 %}{{ item.get_created }}{% else %}{{ item.get_created|timesince }} назад{% endif %}</small></em></div>
+									</td>
+									<td width="10"><a class="orange pull-right" href="{{ item.get_delete_url }}" onclick="return confirm('Вы уверены?')" title="Удалить сообщение"><i class="icon-remove"></i></a></td>
+								</tr>
+							{% endfor %}
+						{% else %}
+							<tr>
+								<td colspan="3">Нет сообщений</td>
+							</tr>
+						{% endif %}
+					</tbody>
+				</table>
+				{% include "paginate.html" %}
+				{% endblock %}
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

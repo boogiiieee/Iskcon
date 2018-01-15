@@ -1,0 +1,10 @@
+{% if message %}
+	<p>{{ message|safe|linebreaksbr }}</p>
+{% endif %}
+
+{% if sign %}
+	<br>
+	---
+	<br>
+	{{ sign }}
+{% endif %}

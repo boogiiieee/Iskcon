@@ -1,0 +1,18 @@
+{% regroup messages by group as messages_group_list %}
+{% for group in messages_group_list %}
+	<h1>{{ group.grouper.get_title }}</h1>
+	<p>---</p>
+	{% for message in group.list %}
+		<h2>{{ message.get_theme }}</h2>
+		<small>Автор: {{ message.user.get_full_name|default:message.user.username }} {% if message.user.email %}<a href="mailto:{{ message.user.email }}">{{ message.user.email }}</a>{% endif %}</small>
+		{{ message.get_text }}
+        {% for file in message.get_files %}
+            <p>
+                <a href="http://{{ domain }}{{ file.file.url }}" target="_blank">{{ file.get_title }}</a>
+            </p>
+        {% endfor %}
+		<p>---</p>
+	{% endfor %}
+{% endfor %}
+
+{{ sign }}

@@ -1,0 +1,12 @@
+{% load bootstrap_toolkit %}
+
+{% if filter %}
+	{{ filter.media }}
+	<div class="well">
+		<h4>Фильтр</h4>
+		<div class="form">
+			{{ filter|as_bootstrap }}
+			<button type="submit" class="btn">Применить</button>
+		</div>
+	</div>
+{% endif %}

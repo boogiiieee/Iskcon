@@ -1,0 +1,36 @@
+{% load formset_tags %}
+
+{{ formset.media }}
+
+<div id="formset_{{ formset.prefix }}" data-formset-prefix="{{ formset.prefix }}">
+
+    {{ formset.management_form }}
+
+    <div data-formset-body>
+        {% for form in formset %}
+            <div class="form-inline" data-formset-form>
+				{{ form }}
+                <a href="#" onclick="return false;" data-formset-delete-button><i class="icon icon-remove"></i> Удалить</a>
+            </div>
+        {% endfor %}
+    </div>
+
+    <script type="form-template" data-formset-empty-form>
+        {% escapescript %}
+            <div class="form-inline" data-formset-form>
+				{{ formset.empty_form }}
+                <a href="#" onclick="return false;" data-formset-delete-button><i class="icon icon-remove"></i> Удалить</a>
+            </div>
+        {% endescapescript %}
+    </script>
+    
+	<a href="#" onclick="return false;" data-formset-add><i class="icon icon-plus"></i> Добавить</a>
+	<div class="clearfix"></div>
+    
+    <script>
+		$(function(){
+			$("#formset_{{ formset.prefix }}").formset({animateForms:true});
+		});
+	</script>
+
+</div>

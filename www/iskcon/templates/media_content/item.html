@@ -1,0 +1,92 @@
+{% extends "media_content/all.html" %}
+{% load thumbnail comments videoplayer_tags embed_video_tags %}
+
+{% block title %}{{ item.meta_title }}{% endblock %}
+{% block description %}{{ item.meta_description }}{% endblock %}
+{% block keywords %}{{ item.meta_keywords }}{% endblock %}
+
+{% block extra_media %}{% VideoPlayerMedia %}{% endblock %}
+
+{% block breadcrumb_item %}
+    {% if item.get_image or cat.is_image %}
+        <li><a href="{% url foto_url %}">Фото</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+    {% elif item.get_video or cat.is_video %}
+        <li><a href="{% url video_url %}">Видео</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+    {% elif item.get_audio or cat.is_audio %}
+        <li><a href="{% url audio_url %}">Аудио</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+    {% endif %}
+    {% for cat in item.category.get_ancestors %}
+        <li><a href="{{ cat.get_absolute_url }}">{{ cat.get_title }}</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+    {% endfor %}
+    <li><a href="{{ item.category.get_absolute_url }}">{{ item.category.get_title }}</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+    <li class="active">{{ item.get_title }}</li>
+{% endblock %}
+
+{% block leftblock %}
+    <div class="row-fluid">
+        <div class="span12">
+            <h1>{{ item.get_title }}</h1>
+        </div>
+    </div>
+    <div class="media">
+        {% if item.get_image %}
+            <div class="pull-left">
+                {% thumbnail item.get_image "300x300" as im %}
+                    <img class="media-object" src="{{ im.url }}" alt="{{ item.get_title }}">
+                {% endthumbnail %}
+            </div>
+        {% endif %}
+
+        <!--Video-->
+        {% if item.get_params %}
+            <div class="video_container margin_b">
+                {% if item.get_file_url %}
+                    {% VideoFile item.get_file_url %}
+                {% elif item.rtmp_file and item.rtmp %}
+                    {% VideoFile item.rtmp_file item.rtmp %}
+                {% elif item.video_url %}
+                    <div class="tube">
+                        {% video item.video_url "100% x 450" %}
+                    </div>
+                {% elif item.iframe %}
+                    <div class="iframe">
+                        {{ item.iframe|safe }}
+                    </div>
+                {% elif item.video_mms %}
+                    <div class="mms">
+                        <a href="{{ item.video_mms }}"></a>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+        <!--End video-->
+
+        <!--Audio-->
+        {% if item.get_audio_params %}
+            <div class="audio_container margin_b">
+                {% if item.get_audio_url %}
+                    {% VideoFile item.get_audio_url %}
+                {% elif item.stream %}
+                    {% VideoFile item.stream 'audio' %}
+                {% elif item.audio_mms %}
+                    <div class="audio_mms">
+                        <a href="{{ item.audio_mms }}"></a>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+        <!--End audio-->
+
+        <div class="media-body">
+            <small><strong>{{ item.created_at|date:"d.m.Y" }}</strong></small>
+            <div>{{ item.text|safe }}</div>
+        </div>
+    </div>
+
+    {% render_comment_list for item %}
+
+    <div>
+        {% render_comment_form for item %}
+    </div>
+
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "teatro/index.html" %}
+
+{% block title %}{{ table.opts.verbose_name_plural|capfirst }}{% endblock %}
+
+{% block main %}
+	<form>
+		<div class="container-fluid">
+			<div class="row-fluid">
+				<div class="span8">
+					{% include "engine/search.html" %}
+				</div>
+				<div class="span4">
+					{% block top_btn %}{% endblock %}
+				</div>
+			</div>
+			<br>
+
+			{% if filter %}
+				<div class="row-fluid">
+					<div class="span10">
+			{% endif %}
+			
+			{% block table %}
+				{% if item_list %}
+					{% include "engine/table_model.html" %}
+				{% else %}
+					<h3>Записей нет</h3>
+				{% endif %}
+			{% endblock %}
+			
+			{% if filter %}
+					</div>
+					<div class="span2">
+						{% include "engine/filter.html" %}
+					</div>
+				</div>
+			{% endif %}
+			
+			<div class="row-fluid">
+				<div class="span8">
+					{% include "paginate.html" %}
+				</div>
+				<div class="span4">
+					{% block bottom_btn %}{% endblock %}
+				</div>
+			</div>
+		</div>
+	</form>
+{% endblock %}		

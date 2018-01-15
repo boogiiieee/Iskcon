@@ -1,0 +1,40 @@
+{% extends "2col.html" %}
+{% load thumbnail mptt_tags %}
+
+{% block breadcrumb_item %}
+	<li class="active">{{ request.flatpage.get_title|default:"Электронный каталог" }}</li>
+{% endblock %}
+
+{% block leftblock %}
+	{% if items_list %}
+		{% for item in items_list %}
+			{% include "electronic_catalog/ad.html" %}
+			<hr/>
+		{% endfor %}
+	{% else %}
+		<h2>Раздел в разработке</h2>
+	{% endif %}
+	
+	{% include "paginate.html" %}
+{% endblock %}
+
+
+{% block rightblock %}
+	{% if electronic_catalog_sub_menu %}
+		<h5>Категории</h5>
+		<div class="list_cat">
+			{% recursetree electronic_catalog_sub_menu %}
+				<ul class="no_style_list">
+					<li {% ifequal cat.id node.id %}class="active"{% endifequal %}{% ifequal item.category.id node.id %}class="active"{% endifequal %}>
+						<i class="icon-angle-right"></i>
+						<a href="{{ node.get_absolute_url }}">{{ node.get_title }}{% if not node.is_leaf_node %}{% endif %}</a>
+						{% if not node.is_leaf_node %}
+							{{ children }}
+						{% endif %}
+					</li>
+				</ul>
+			{% endrecursetree %}
+		</div>
+	{% endif %}
+
+{% endblock %}

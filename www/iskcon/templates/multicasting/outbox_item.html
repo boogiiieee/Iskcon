@@ -1,0 +1,35 @@
+{% extends "multicasting/outbox.html" %}
+
+{% block title %}{{ item.get_title }}{% endblock %}
+{% block description %}{{ item.meta_description }}{% endblock %}
+{% block keywords %}{{ item.meta_keywords }}{% endblock %}
+
+{% block breadcrumb_item %}
+	<li><a href="{% url multicasting_outbox_url %}">Исходящие сообщения</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+	<li class="active">{{ item.get_title }}</li>
+{% endblock %}
+
+{% block rightblock %}
+	<table class="table">
+		<thead>
+			<tr>
+				<td>
+					<div class="orange"><strong>{{ item.get_title }}</strong></div>
+					<div>
+						<small><em><strong>Отправлено:</strong> {% if item.get_created <= date_now_1 %}{{ item.get_created }}{% else %}{{ item.get_created|timesince }} назад{% endif %}
+						<br><em><strong>От:</strong> <span class="orange">{{ item.user.get_full_name }}</span>
+						<br><em><strong>Кому:</strong> <span class="orange">{{ item.get_recipient }}</span></em></small>&nbsp;
+					</div>
+				</td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>
+					<div>{{ item.get_text|linebreaks }}</div>
+					{% if item.file %}<div><strong>Прикрепленные файл: <a target="_blank" href="{{ item.file.url }}">Скачать</a></strong></div>{% endif %}
+				</td>
+			</tr>
+		</tbody>
+	</table>
+{% endblock %}

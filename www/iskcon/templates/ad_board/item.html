@@ -1,0 +1,58 @@
+{% extends "ad_board/full.html" %}
+
+{% load thumbnail %}
+{% load comments %}
+
+{% block title %}{{ item.get_title }}{% endblock %}
+{% block description %}{{ item.meta_description }}{% endblock %}
+{% block keywords %}{{ item.meta_keywords }}{% endblock %}
+
+{% block breadcrumb_item %}
+	<li><a href="{% url ad_board_url %}">Доска объявлений</a> <span class="divider">/</span></li>
+	<li><a href="{{ item.category.get_absolute_url }}">{{ item.category.get_title }}</a> <span class="divider">/</span></li>
+	<li class="active">{{ item.get_title }}</li>
+{% endblock %}
+
+{% block leftblock %}
+	<div class="row-fluid">
+		<div class="span12">
+			<h1>{{ item.get_title }}</h1>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+		<div class="media">
+			{% if item.get_image %}
+				<div class="pull-left ad_board_item">
+					{% thumbnail item.get_image "200x150" as im %}
+						<a class="img-polaroid prettyPhoto t_center" href="{{ MEDIA_URL }}{{ item.get_image }}" data-rel="prettyPhoto" title="{{ item.get_title }}">
+							<img src="{{ im.url }}" alt="{{ item.get_title }}">
+						</a>
+					{% endthumbnail %}
+				</div>
+			{% endif %}
+			<div class="media-body">
+				<div>
+					<div>
+						<i class="muted">{{ item.get_created }}</i><span class="pull-right label label-inverse">{{ item.get_all_cost }}</span>
+					</div>
+					<strong><a href="{{item.get_absolute_url }}">{{ item.get_title }}</a></strong>
+					
+				</div>
+				<div class="margin_b_min"><i>{{ item.text|linebreaks }}</i></div>
+			</div>
+		</div>
+		
+	</div>
+	{% render_comment_list for item %}
+
+	<div>
+		{% render_comment_form for item %}
+	</div>
+
+	<div class="pagination pagination-centered">
+		<ul>
+			<li><a href="{% url ad_board_url %}">К списку объявлений »</a></li>
+		</ul>
+	</div>
+{% endblock %}

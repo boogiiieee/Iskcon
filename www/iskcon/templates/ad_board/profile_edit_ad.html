@@ -1,0 +1,16 @@
+{% extends "ad_board/full.html" %}
+
+{% block extra_media %}{% endblock %}
+
+{% block breadcrumb_item %}
+	<li><a href="{%  url profile_ad_url %}">Мои объявления</a> <span class="divider">/</span></li>
+	<li class="active">Редактировать объявление</li>
+{% endblock %}
+
+{% block leftblock %}
+	<div class="row-fluid">
+		<form class="form add" action="" method="post" enctype="multipart/form-data">{% csrf_token %}
+			{% include "forform.html" %}
+		</form>
+	</div>
+{% endblock %}

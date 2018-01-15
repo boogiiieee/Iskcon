@@ -1,0 +1,71 @@
+{% extends "default.html" %}
+{% load i18n %}
+
+{% block extra_media %}
+	<link href="{{ STATIC_URL }}js/bootstrap-editable/bootstrap-editable/css/bootstrap-editable.css" rel="stylesheet">
+	<script src="{{ STATIC_URL }}js/bootstrap-editable/bootstrap-editable/js/bootstrap-editable.min.js"></script>
+	
+	<script>
+		$(document).ready(function() {
+
+			$('.editable').editable({
+				ajaxOptions: { dataType:'json' },
+				type: 'text',
+				value: '',
+				inputclass: 'input-small',
+				success: function(response, newValue) {
+					if(!response['success']) return response['msg'];
+					else {
+						location.reload();
+					};
+				},
+				error: function(response, newValue) {
+					return 'Произошла ошибка. Повторите попытку позже.';
+					
+				},
+			});
+			
+		});
+		$.fn.editableform.buttons = '<strong>{{ mail_domain }}</strong> <button type="submit" class="btn btn-warning editable-submit"><i class="icon-ok icon-white"></i></button>' + '<button type="button" class="btn editable-cancel"><i class="icon-remove"></i></button><div style="color:red"><strong><small>ВНИМАНИЕ!<br/>При регистрации почтового ящика<br/>старый e-mail будет изменен на новый.</small></strong></div>'; 
+	</script>
+{% endblock %}
+
+{% block content %}
+	{% block subcontent %}
+		<div class="row">
+			<div class="span6">
+				<h3>Основные данные</h3>
+				<form class="" method="post" action=""  enctype='multipart/form-data'>{% csrf_token %}
+					<div class="form-horizontal">
+						{% with form1 as form %}
+							{% include "forform.html" %}
+						{% endwith %}
+					</div>
+					<div class="form-inline">
+						<h3>Настройка почты для конференций</h3>
+						
+						<a href="#" class="btn btn-ico btn-warning editable editable-click margin_b_min" data-pk="{{ request.user.id }}" data-url="{% url conference_create_email %}" data-title="Зарегистрировать почтовый ящик" data-placement="right" data-placeholder="">
+							<i class="icon-envelope-alt pull-left"></i>
+							<div class="pull-left"><div><strong>ЗАРЕГИСТРИРОВАТЬ</strong></div><div class="small">ПОЧТОВЫЙ ЯЩИК</div></div>
+						</a>
+
+
+						{{ formset1.management_form }}
+						{% for form in formset1.forms %}
+							{% include "conference/forform_config.html" %}
+						{% endfor %}
+					</div>
+				</form>
+			</div>
+			
+			<div class="span6">
+				<h3>Сменить пароль</h3>
+				{% with form2 as form %}
+					<form class="form-horizontal" method="post" action="/accounts/change-password/">{% csrf_token %}
+						{% include "forform.html" %}
+					</form>
+				{% endwith %}
+			</div>
+		</div>
+	{% endblock %}
+{% endblock %}

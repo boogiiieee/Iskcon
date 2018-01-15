@@ -1,0 +1,28 @@
+{% extends "multicasting/inbox.html" %}
+{% block title %}{{ request.flatpage.get_title|default:"Личные сообщения - Новое сообщение" }}{% endblock %}
+{% block description %}{{ request.flatpage.get_description }}{% endblock %}
+{% block keywords %}{{ request.flatpage.get_keywords }}{% endblock %}
+
+{% block extra_media %}
+	<script type="text/javascript" src="{{ STATIC_URL }}js/multiple-select-master/jquery.multiple.select.js"></script>
+	<link rel="stylesheet" media="screen" href="{{ STATIC_URL }}js/multiple-select-master/multiple-select.css">
+	
+	<script>
+		$(function(){
+			$('select[name="recipient"]').multipleSelect({selectAllText: 'Выбрать все',filter: true,});
+			
+		});
+	</script>
+{% endblock %}
+
+{% block rightblock %}
+	<div class="row-fluid">
+		{% if form %}
+			<form class="form add" action="" method="post" enctype="multipart/form-data">{% csrf_token %}
+				{% include "forform.html" %}
+			</form>
+		{% else %}
+			<p>Вам закрыт доступ к отправке сообщений. Обратитесь к лидеру группы или администратору!</p>
+		{% endif %}
+	</div>
+{% endblock %}

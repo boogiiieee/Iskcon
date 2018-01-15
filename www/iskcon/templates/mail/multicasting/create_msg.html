@@ -1,0 +1,8 @@
+{% extends "mail/mail.html" %}
+
+{% block content %}
+	<h2>Вам пришло личние сообщение от пользователя {{ obj.sms.user.get_full_name }} на сайте {{ domain }}!</h2>
+	<p>
+		<a href="http://{{ domain }}/accounts/profile/inbox/{{ obj.id }}/">Перейти к сообщению</a>
+	</p>
+{% endblock %}

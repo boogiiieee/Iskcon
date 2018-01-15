@@ -1,0 +1,38 @@
+{% extends "profile.html" %}
+{% load i18n thumbnail %}
+
+{% block subcontent %}
+	{% if items_list %}
+		{% for item in items_list %}
+			<div class="row-fluid">
+				<div class="media">
+					{% if item.product.get_image %}
+						<div class="pull-left ad_board_item">
+							{% thumbnail item.product.get_image "200x150" as im %}
+								<a class="img-polaroid prettyPhoto t_center" href="{{ MEDIA_URL }}{{ item.product.get_image }}" data-rel="prettyPhoto" title="{{ item.get_title }}">
+									<img src="{{ im.url }}" alt="{{ item.get_title }}">
+								</a>
+							{% endthumbnail %}
+						</div>
+					{% endif %}
+					<div class="media-body">
+						<div>
+							<div>
+								<i class="muted">{{ item.get_created }}</i><span class="pull-right label label-inverse">{{ item.product.get_all_cost }}</span>
+							</div>
+							<div><strong class="hover">{{ item.get_title }}</strong>
+							<small><i class="muted">({{ item.product.get_announcement }})</i></small></div>
+							<p>Статус заказа: {{ item.get_status_display }}</p>
+						</div>
+					</div>
+				</div>
+				
+			</div>
+			<hr/>
+		{% endfor %}
+	{% else %}
+		<h2>У Вас нет объявлений</h2>
+	{% endif %}
+
+	{% include "paginate.html" %}
+{% endblock %}

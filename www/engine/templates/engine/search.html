@@ -1,0 +1,6 @@
+{% if table.search_fields %}
+	<div class="form-search">
+		<input class="input-medium" type="text" name="q" value="{{ request.GET.q }}">
+		<button type="submit" class="btn">Найти</button>
+	</div>
+{% endif %}

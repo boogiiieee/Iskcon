@@ -1,0 +1,52 @@
+{% extends "multicasting/inbox.html" %}
+
+{% block title %}{{ request.flatpage.get_title|default:"Личные сообщения - Исходящие сообщения" }}{% endblock %}
+{% block description %}{{ request.flatpage.get_description }}{% endblock %}
+{% block keywords %}{{ request.flatpage.get_keywords }}{% endblock %}
+
+{% block extra_media %}{% endblock %}
+
+{% block rightblock %}
+	<table class="table table-bordered">
+		<thead>
+			<tr>
+				<th colspan="2">Настройка прав пользователя</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% if items_list %}
+				{% for item in items_list %}
+					<tr>
+						<td width="10">{{ item.id }}</td>
+						<td>
+							<div><strong class="orange">{{ item.get_full_name }}</strong></div>
+						</td>
+						<td width="200">{% if item.get_profile.is_send_ls %}<a class="brown" href="/accounts/profile/perm_no_send/{{ item.id }}" onclick="return confirm('Вы уверены?')" title="Запретить отправку ЛС">Запретить отправку ЛС</a>{% else %}<a href="/accounts/profile/perm_yes_send/{{ item.id }}" onclick="return confirm('Вы уверены?')" title="Разрешить отправку ЛС">Разрешить отправку ЛС</a>{% endif %}</td>
+					</tr>
+				{% endfor %}
+			{% else %}
+				<tr>
+					<td colspan="3">Нет пользователей</td>
+				</tr>
+			{% endif %}
+		</tbody>
+	</table>
+	{% include "paginate.html" %}
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

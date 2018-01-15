@@ -1,0 +1,134 @@
+{% extends "2col.html" %}
+{% load thumbnail mptt_tags videoplayer_tags embed_video_tags %}
+
+{% block title %}{% if cat %}{{ cat.get_title }}{% else %}{{ request.flatpage.meta_title|default:"request.flatpage.title" }}{% endif %}{% endblock %}
+{% block description %}{% if cat %}{{ cat.get_description }}{% else %}{{ request.flatpage.meta_description }}{% endif %}{% endblock %}
+{% block keywords %}{% if cat %}{{ cat.get_keywords }}{% else %}{{ request.flatpage.meta_keywords }}{% endif %}{% endblock %}
+
+{% block breadcrumb_item %}
+    {% if item.get_image or cat.is_image %}
+        <li><a href="{% url foto_url %}">Фото</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+    {% elif item.get_video or cat.is_video %}
+        <li><a href="{% url video_url %}">Видео</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+    {% elif item.get_audio or cat.is_audio %}
+        <li><a href="{% url audio_url %}">Аудио</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+    {% endif %}
+    {% for cat in item.category.get_ancestors %}
+        <li><a href="{{ cat.get_absolute_url }}">{{ cat.get_title }}</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+    {% endfor %}
+    {% if cat %}
+        {% for item in cat.get_ancestors %}
+            <li><a href="{{ item.get_absolute_url }}">{{ item.get_title }}</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+        {% endfor %}
+    {% endif %}
+    <li class="active">{% if cat %}{{ cat.get_title }}{% else %}{{ request.flatpage.get_title }}{% endif %}</li>
+{% endblock %}
+
+{% block extra_media %}{% VideoPlayerMedia %}{% endblock %}
+
+{% block flatpage %}
+    {% if cat or request.flatpage or item %}
+        <div class="row-fluid margin_b_min">
+            {% if cat %}
+                <h1>{{ cat.get_title }}</h1>
+                {{ cat.get_text|safe }}
+            {% elif request.flatpage %}
+                <h1>{{ request.flatpage.get_title }}</h1>
+                {{ request.flatpage.get_content|safe }}
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block leftblock %}
+
+    {% if article_list %}
+        {% for item in article_list %}
+            {% if forloop.counter0|divisibleby:"2"%}<div class="row-fluid margin_b">{% endif %}
+                <div class="span6 border">
+                    <div class="row-fluid">
+                        {% if item.get_image %}
+                            {% thumbnail item.get_image "400x300" crop="center" as im %}
+                                <a class="prettyPhoto" href="{{ MEDIA_URL }}{{ item.get_image }}" data-rel="prettyPhoto" title="{{ item.get_title }}" rel="prettyPhoto[pp_gal]">
+                                    <img src="{{ im.url }}" alt="{{ item.get_title }}">
+                                </a>
+                            {% endthumbnail %}
+                        {% endif %}
+
+                        <!--Video-->
+                        {% if item.get_file_url %}
+                            {% VideoFile item.get_file_url %}
+                        {% elif item.rtmp_file and item.rtmp %}
+                            {% VideoFile item.rtmp_file item.rtmp %}
+                        {% elif item.video_url %}
+                            <div class="tube">
+                                {% video item.video_url "100% x 180" %}
+                            </div>
+                        {% elif item.iframe %}
+                            <div style="width:100%;height:180px;overflow:scroll">
+                                {{ item.iframe|safe }}
+                            </div>
+                        {% elif item.video_mms %}
+                            <div class="mms">
+                                <a href="{{ item.video_mms }}"></a>
+                            </div>
+                        {% endif %}
+                        <!--End video-->
+
+                        <!--Audio-->
+                        {% if item.get_audio_params %}
+                            <div class="audio_container">
+                                {% if item.get_audio_url %}
+                                    {% VideoFile item.get_audio_url %}
+                                {% elif item.stream %}
+                                    {% VideoFile item.stream 'audio' %}
+                                {% elif item.audio_mms %}
+                                    <div class="audio_mms">
+                                        <a href="{{ item.audio_mms }}"></a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        <!--End audio-->
+
+                    </div>
+                    <div class="row-fluid border_t">
+                        <div class="padding5">
+                            <div class="title_ow t_center">
+                                <a class="hover muted " href="{{ item.get_absolute_url }}" title="{{ item.get_title }}">
+                                    <i><strong>{{ item.get_title }}</strong></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% if forloop.counter|divisibleby:"2" or forloop.last %}</div>{% endif %}
+
+        {% endfor %}
+    {% else %}
+        <h2>Раздел в разработке</h2>
+    {% endif %}
+
+    {% include "paginate.html" %}
+
+{% endblock %}
+
+{% block rightblock %}
+    {% if category_menu %}
+        <h5>Категории</h5>
+        <div class="list_cat">
+            {% recursetree category_menu %}
+                <ul class="no_style_list">
+                    <li {% ifequal cat.id node.id %}class="active"{% endifequal %}{% ifequal item.category.id node.id %}class="active"{% endifequal %}>
+                        <i class="icon-angle-right"></i>
+                        <a href="{{ node.get_absolute_url }}">{{ node.get_title }}{% if not node.is_leaf_node %}{% endif %}</a>
+                        {% if not node.is_leaf_node %}
+                            {{ children }}
+                        {% endif %}
+                    </li>
+                </ul>
+            {% endrecursetree %}
+        </div>
+    {% endif %}
+
+{% endblock %}

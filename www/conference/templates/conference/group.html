@@ -1,0 +1,143 @@
+{% extends "conference/index.html" %}
+
+{% load thumbnail %}
+{% load call_tag %}
+
+{% block breadcrumb_item %}
+	<li><a href="{% url conference_index %}">Конференции</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+	<li class="active">{{ group.get_title }}</li>
+{% endblock %}
+
+{% block lefttopblock %}
+	<a class="btn btn-ico btn-warning margin_b_min pull-left margin_r_min" href="{% url conference_admin_contact %}" title="Создать конференцию">
+		<i class="icon-lightbulb pull-left"></i><div class="pull-left"><div><strong>СОЗДАТЬ КОНФЕРЕНЦИЮ</strong></div><div class="small">НАПИСАТЬ АДМИНИСТРАТОРУ</div></div>
+	</a>
+	<a class="btn btn-ico btn-inverse pull-left" href="{% url conference_lider_contact %}?group={{ group.id }}" title="Написать лидеру">
+		<i class="icon-pencil pull-left"></i><div class="pull-left"><div><strong>НАПИСАТЬ</strong></div><div class="small">ЛИДЕРУ</div></div>
+	</a>
+	<div class="clearfix"></div>
+	<hr>
+{% endblock %}
+
+{% block rightblock %}
+	<div class="row-fluid">
+		<div class="span12">
+			{% if is_in_group %}
+				{% call group.is_banned with request.user as is_banned %}
+				<!-- Сообщение если пользователь забанен -->
+				{% if is_banned %}
+					<div class="alert alert-error">
+						<button type="button" class="close" data-dismiss="alert">&times;</button>
+						<strong>Внимание!</strong> Вы не можете писать сообщения до {{ is_banned|date:"d.m.Y" }}.
+					</div>
+				{% endif %}
+			{% endif %}
+			
+			{% if group_config_form %}
+				<a href="javascript:return false;" data-toggle="collapse" data-target="#config_cong" class="btn btn-warning pull-right" title="Настройки конференции"><i class="icon-cogs"></i>&nbsp;Настройки конференции</a>
+				<div id="config_cong" class="{% if not group_config_form_flag %}collapse{% endif %} row-fluid">
+					<h2>Настройки конференции</h2>
+					<form class="form-inline" action="" method="post">{% csrf_token %}
+						{% with group_config_form as form %}
+							{% include "conference/forform_config.html" %}
+						{% endwith %}
+						<input type="hidden" name="group_config_form_flag" value="1">
+					</form>
+					<hr>
+				</div>
+			{% endif %}
+			
+			
+			<!-- Описание группы -->
+			<h1>{{ group.get_title }}</h1>
+			<div class="row-fluid margin_b">{{ group.get_description }}</div>
+			
+			{% if is_in_group %}
+				<!-- Сообщения группы -->
+				{% call group.get_messages_list with request.user as messages_list %}
+				{% call group.can_write_message with request.user as can_write_message %}
+				
+				<!-- Форма нового сообщения -->
+				{% if not is_banned and can_write_message %}
+					<h2>Написать сообщение</h2>
+					<form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
+						{% include "conference/forform.html" %}
+                        {% include "conference/forformset.html" %}
+                        
+                        <div class="control-group">
+                            <div class="controls">
+                                <button type="submit" class="btn btn-warning pull-right">Отправить</button>
+                                <div class="clearfix"></div>
+                            </div>
+                        </div>
+					</form>
+				{% endif %}
+				
+				{% if messages_list|length %}
+					<ul class="messages_list">
+						{% for message in messages_list %}
+							<li id="sms_{{ message.id }}" class="li">
+								<div class="media" >
+									<hr/>
+									<div class="pull-left">
+										{% thumbnail message.user.get_profile.get_image "48x48" crop="center" format='PNG' as im %}
+											<a class="prettyPhoto" href="{{ MEDIA_URL }}{{ message.user.get_profile.get_image }}" data-rel="prettyPhoto">
+												<img class="media-object img" src="{{ im.url }}"/>
+											</a>
+										{% empty %}
+											<img class="media-object img" src="{{ STATIC_URL }}img/no_foto.jpg"/>
+										{% endthumbnail %}
+									</div>
+									<div class="media-body">
+										<div class="mh95">
+											<div class="mh75">
+												<div><strong>{{ message.user.get_full_name|default:message.user.username }}</strong> - <em>{{ message.get_theme }}</em></div>
+												<div>
+													<span class="t_center orange"><small>{{ message.get_created|date:"d.m.Y" }}</small></span>&nbsp;-
+													<span class="t_center small">{{ message.get_created|date:"H:i" }}</span>
+												
+												</div>
+                                                {% with files=message.get_files %}
+                                                    {% if files %}<i class="icon-paper-clip"></i> {% endif %}<a href="#" onclick="return false;" data-toggle="collapse" data-target="#sms_modal_{{ message.id }}">подробнее</a>
+                                                    <div id="sms_modal_{{ message.id }}" class="collapse">
+                                                        <div class="sms_body">{{ message.get_text }}</div>
+                                                        {% for file in files %}
+                                                            <div>
+                                                                <a href="{{ file.file.url }}" target="_blank">
+                                                                    <i class="icon-paper-clip"></i> {{ file.get_title }}
+                                                                </a>
+                                                            </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endwith %}
+											</div>
+										</div>
+									</div>
+									<div class="clearfix"></div>
+								</div>
+							</li>
+						{% endfor %}
+					</ul>
+				{% else %}
+					<hr/>
+					<p>Сообщений нет.</p>
+				{% endif %}
+			{% else %}
+				<div class="row-fluid t_center">
+					{% if group.has_perm_go_into_group %}
+						{% if group.is_public %}
+							<a class="btn btn-ico btn-warning" href="{% url conference_group_subscribe group_id=group.id %}">
+								<i class="icon-pencil pull-left"></i><div class="pull-left"><div><strong>ПОДПИСАТЬСЯ</strong></div><div class="small">НА КОНФЕРЕНЦИЮ</div></div>
+							</a>
+						{% else %}
+							<a class="btn btn-ico btn-warning" href="{% url conference_group_subscribe group_id=group.id %}">
+								<i class="icon-pencil pull-left"></i><div class="pull-left"><div><strong>ЗАПРОС</strong></div><div class="small">НА ВСТУПЛЕНИЕ</div></div>
+							</a>
+						{% endif %}
+					{% endif %}
+				</div>
+			{% endif %}
+		</div>
+	</div>
+{% endblock %}
+

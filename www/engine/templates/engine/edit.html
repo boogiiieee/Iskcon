@@ -1,0 +1,20 @@
+{% extends "teatro/index.html" %}
+
+{% block title %}Редактировать запись{% endblock %}
+
+{% block main %}
+	<div class="container-fluid">
+		<h3>{% block block_title %}Редактировать запись{% endblock %}</h3>
+		<form class="form-horizontal" action="" method="post" enctype="multipart/form-data">{% csrf_token %}
+			{% include "form.html" %}
+			{% include "formset.html" %}
+			<div class="control-group">
+				<div class="controls">
+					{% block bottom_btn %}
+						<button type="submit" class="btn btn-primary">Сохранить</button>
+					{% endblock %}
+				</div>
+			</div>
+		</form>
+	</div>
+{% endblock %}

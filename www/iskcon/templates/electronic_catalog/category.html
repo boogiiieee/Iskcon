@@ -1,0 +1,34 @@
+{% extends "electronic_catalog/full.html" %}
+{% load thumbnail %}
+
+{% block title %}{{ cat.get_title }}{% endblock %}
+{% block description %}{{ cat.get_description }}{% endblock %}
+{% block keywords %}{{ cat.get_keywords }}{% endblock %}
+
+{% block flatpage %}
+	<h1>{{ cat.get_title }}</h1>
+	{% if cat.get_text %}
+		<div class="margin_b">{{ cat.get_text|safe }}</div>
+	{% endif %}
+{% endblock %}
+
+{% block breadcrumb_item %}
+	<li><a href="{% url electronic_catalog_url %}">Электронный каталог</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+	{% for item in cat.get_ancestors %}	
+		<li><a href="{{ item.get_absolute_url }}">{{ item.get_title }}</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+	{% endfor %}
+	<li>{{ cat.get_title }}</li>
+{% endblock %}
+
+{% block leftblock %}
+	{% if items_list %}
+		{% for item in items_list %}
+			{% include "electronic_catalog/ad.html" %}
+			<hr/>
+		{% endfor %}
+	{% else %}
+		<div class="row-fluid margin_b"><h2>Список объявлений пуст</h2></div>
+	{% endif %}
+	
+	{% include "paginate.html" %}
+{% endblock %}

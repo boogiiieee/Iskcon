@@ -1,0 +1,26 @@
+{% extends "forum_base.html" %}
+{% load i18n %}
+
+{% block title %}Новая тема{% endblock %}
+
+{% block pagetitle %}
+	<div class="row">
+		<div class="span12">
+			<h1>Новая тема</h1>
+		</div>
+	</div>
+{% endblock %}
+
+{% block breadcrumb_item %} 
+	<li><a href="{% url forum_index %}">Форум</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+	{% for title, url in forum.get_url_name %}
+		<li><a href='{{ url }}'>{{ title }}</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+	{% endfor %}
+	<li class="active">Новая тема</li>
+{% endblock %}
+
+{% block subcontent %}
+	<form class="form-horizontal" method='post' action='./' enctype='multipart/form-data'>{% csrf_token %}
+		{% include "forform.html" %}
+	</form>
+{% endblock %}

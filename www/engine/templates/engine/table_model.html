@@ -1,0 +1,26 @@
+{% load call_tag %}
+<table class="table table-bordered">
+	<thead>
+		<tr>
+			{% for head in table.header_list %}
+				<th>{{ head.text|capfirst }}</th>
+			{% endfor %}
+		</tr>
+	</thead>
+	<tbody>
+		{% for item in item_list %}
+			<tr>
+				{% call table.row_list with item as td_list %}
+				{% for td in td_list %}
+					{% if forloop.first %}
+						<th>
+							<a href="{{ item.get_absolute_url }}">{{ td.text|default:"" }}</a>
+						</th>
+					{% else %}
+						<td>{{ td.text|default:"" }}</td>
+					{% endif %}
+				{% endfor %}
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>

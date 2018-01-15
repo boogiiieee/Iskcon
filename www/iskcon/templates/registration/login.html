@@ -1,0 +1,42 @@
+{% extends "default.html" %}
+
+{% block content %}
+	<div class="row-fluid">
+		<div class="span3">
+		</div>
+		
+		<div class="span6">
+			<form class="form-horizontal" action="{% url auth_login %}" method="post">{% csrf_token %}
+				{% if form.errors %}
+					<div class="alert alert-error">
+						<button type="button" class="close" data-dismiss="alert">&times;</button>
+						<strong>Ошибка!</strong> Неправильный логин или пароль.
+					</div>
+				{% endif %}
+
+				{% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+
+				{% for field in form.visible_fields %}
+					<div class="control-group {% if field.errors %}error{% endif %}">
+						<label class="control-label" for="{{ field.id_for_label }}"><strong>{% if field.field.required %}*{% endif %} {{ field.label }}</strong></label>
+						<div class="controls">
+							{{ field }}
+							{% if field.errors %}<span class="help-inline">{{ field.errors }}</span>{% endif %}
+						</div>
+					</div>
+				{% endfor %}
+
+				<div class="control-group">
+					<div class="controls">
+						<input type="hidden" name="next" value="/">
+						<p><a href="{% url auth_password_reset %}">Забыли логин или пароль?</a></p>
+						<button type="submit" class="btn btn-warning">Войти</button>
+					</div>
+				</div>
+			</form>
+		</div>
+		
+		<div class="span3">
+		</div>
+	</div>
+{% endblock %}

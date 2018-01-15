@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+{% load copyrigth_tags mptt_tags thumbnail %}
+<html lang="ru">
+	<head>
+		<meta charset="utf-8">
+		<link rel="shortcut icon" href="{{ STATIC_URL }}favicon.ico" type="image/x-icon">
+		
+		<title>{% block title %}{{ request.flatpage.meta_title|default:"Общественно-просветительский сайт Варшнавской общины" }}{% endblock %}</title>
+		<meta name="description" content="{% block description %}{{ request.flatpage.meta_description }}{% endblock %}" />
+		<meta name="keywords" content="{% block keywords %}{{ request.flatpage.meta_keywords }}{% endblock %}" />
+		<meta name="author" content="http://web-aspect.ru">
+
+		<script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.9.1.min.js"></script>
+		<link href='{{ PROTOKOL }}fonts.googleapis.com/css?family=Dosis:200,300,400,500,600,700,800' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" media="screen" href="{{ STATIC_URL }}js/bootstrap/css/bootstrap.min.css">
+		<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap/js/bootstrap.min.js"></script>
+		<script src="{{ STATIC_URL }}js/bootstrap/plugin/bootstrap-carousel.js"></script>
+		<link rel="stylesheet" href="{{ STATIC_URL }}js/font-awesome/css/font-awesome.min.css">
+		
+		<script src="{{ STATIC_URL }}js/prettyphoto/jquery.prettyPhoto.js"></script>
+		<link rel="stylesheet" href="{{ STATIC_URL }}js/prettyphoto/prettyPhoto.css">
+		
+		<script type="text/javascript" charset="utf-8">
+		  $(document).ready(function(){
+			$('.prettyPhoto').prettyPhoto({social_tools:''});
+		  });
+		</script>
+		
+		{% block extra_media %}{% endblock %}
+		
+		<link rel="stylesheet" href="{{ STATIC_URL }}css/default.css">
+		<link rel="stylesheet" href="{{ STATIC_URL }}css/text.css">
+	</head>
+	
+	<body>
+		<div class="wraper">
+			<header>
+				<div class="navbar navbar-static-top">
+					<div class="navbar-inner">
+						<div class="container">
+							<div class="row-fluid">
+								<a class="brand span6" href="/">
+									{{ config.get_site_name|default:'Общественно-просветительский сайт Варшнавской общины'}}
+								</a>
+								<div class="span6 form_login">
+									{% if request.user.is_authenticated %}
+										<div class="row-fluid t_right">
+											<small>Добро пожаловать, <strong><a href="{% url profile_url %}">{{ request.user.get_full_name|default:request.user.username }}</a></strong>!</small>
+										</div>
+										<div class="row-fluid">
+											<a href="{% url auth_logout %}" class="btn btn-inverse pull-right" style="margin-left:5px;"><i class="icon-lock"></i> Выход</a>
+											<div class="btn-group pull-right">
+												<button class="btn btn-warning dropdown-toggle" data-toggle="dropdown"><i class="icon-user"></i> Личный кабинет {% if count_ls %}<strong>({{ count_ls }})</strong>{% endif %} <span class="caret"></span></button>
+
+												<ul class="dropdown-menu">
+													<li {% ifequal profile_nav 1 %}class="active"{% endifequal %}><a href="{% url profile_url %}">Профиль пользователя</a></li>
+                                                    <li {% if profile_nav == 'profile_email' %}class="active"{% endif %}><a href="{% url profile_email %}" target="_blank">Электронная почта</a></li>
+													<!-- {%comment%}<li {% ifequal profile_nav 6 %}class="active"{% endifequal %}><a href="{% url multicasting_url %}">Личные сообщения {% if count_ls %}<strong>({{ count_ls }})</strong>{% endif %}</a></li>{%endcomment%} -->
+													<li {% ifequal profile_nav 6 %}class="active"{% endifequal %}><a href="{% url conference_index %}">Конференции</a></li>
+													<li {% ifequal profile_nav 2 %}class="active"{% endifequal %}><a href="{% url profile_ad_url %}">Мои объявления</a></li>
+													<li {% ifequal profile_nav 3 %}class="active"{% endifequal %}><a href="{% url profile_order_url %}">Мои заказы</a></li>
+													<li class="divider"></li>
+													<li {% ifequal profile_nav 4 %}class="active"{% endifequal %}><a href="{% url profile_thread_url %}">Форум - Мои темы</a></li>
+													<li {% ifequal profile_nav 5 %}class="active"{% endifequal %}><a href="{% url profile_post_url %}">Форум - Мои сообщеия</a></li>
+													
+												</ul>
+											</div>
+										</div>
+									{% else %}
+										<form class="form-inline" action="{% url auth_login %}" method="post">{% csrf_token %}
+											<div class="row-fluid">
+												<div class="span12 t_right">
+													<input class="input-medium" type="text" placeholder="Логин" name="username">
+													<input class="input-medium" type="password" placeholder="Пароль" name="password">
+													<input type="hidden" name="next" value="{{ request.path }}">
+													<button class="btn btn-warning" type="submit">ВХОД</button>
+													<a class="btn btn-inverse" href="{% url registration_register %}" title="Регистрация">РЕГИСТРАЦИЯ</a>
+												</div>
+											</div>
+											<div class="row-fluid">
+												<div class="span12 t_right">
+													<small>Забыли пароль?&nbsp;<a href="{% url auth_password_reset %}" title="Восстановление пароля">Восстановление пароля</a></small>
+												</div>
+											</div>
+										</form>
+									{% endif %}
+								</div>
+							</div>
+							<div class="row-fluid">
+							{% if config.get_image %}
+								{% thumbnail config.get_image "1170x300" crop="center" format='PNG' as im %}
+									<img src="{{ im.url }}" alt="{{ config.get_site_name }}"/>
+								{% endthumbnail %}
+							{% endif %}
+							</div>
+						</div>
+					</div>
+				</div>
+			</header>
+			
+			<div class="container">
+				<div class="row-fluid">
+					<ul class="nav nav-pills main_menu">
+						<li {% ifequal active 1%}class="active"{% endifequal %}>
+							<a href="/">Главная</a>
+						</li>
+						<li class="{% ifequal active 2%}active {% endifequal %}">
+							<a href="{% url news_url %}">Новости</a>
+						</li>
+						<li class="drop {% ifequal active 3%}active {% endifequal %}">
+							<a href="{% url article_url %}">Статьи <i class="icon-angle-down"></i></a>
+							<ul style="display: none;">
+								{% recursetree article_sub_menu %}
+									<li style="position:relative;">
+										<a href="{{ node.get_absolute_url }}">{{ node.get_title }} <i class="icon-angle-right"></i></a>
+										{% if not node.is_leaf_node %}
+											<ul style="display: none;">{{ children }}</ul>
+										{% endif %}
+									</li>
+								{% endrecursetree %}
+							</ul>
+						</li>
+						<li class="drop {% ifequal active 4%}active {% endifequal %}">
+							<a href="{% url foto_url %}">Фото <i class="icon-angle-down"></i></a>
+							<ul style="display: none;">
+								{% recursetree media_sub_menu %}
+									<li style="position:relative;">
+										<a href="{{ node.get_absolute_url }}">{{ node.get_title }} <i class="icon-angle-right"></i></a>
+										{% if not node.is_leaf_node %}
+											<ul style="display: none;">{{ children }}</ul>
+										{% endif %}
+									</li>
+								{% endrecursetree %}
+							</ul>
+						</li>
+						<li class="drop {% ifequal active 5%}active {% endifequal %}">
+							<a href="{% url video_url %}">Видео <i class="icon-angle-down"></i></a>
+							<ul style="display: none;">
+								{% recursetree video_sub_menu %}
+									<li style="position:relative;">
+										<a href="{{ node.get_absolute_url }}">{{ node.get_title }} <i class="icon-angle-right"></i></a>
+										{% if not node.is_leaf_node %}
+											<ul style="display: none;">{{ children }}</ul>
+										{% endif %}
+									</li>
+								{% endrecursetree %}
+							</ul>
+						</li>
+						<li class="drop {% ifequal active 6%}active {% endifequal %}">
+							<a href="{% url audio_url %}">Аудио <i class="icon-angle-down"></i></a>
+							<ul style="display: none;">
+								{% recursetree audio_sub_menu %}
+									<li style="position:relative;">
+										<a href="{{ node.get_absolute_url }}">{{ node.get_title }}{% if not node.is_leaf_node %} <i class="icon-angle-right"></i>{% endif %}</a>
+										{% if not node.is_leaf_node %}
+											<ul style="display: none;">{{ children }}</ul>
+										{% endif %}
+									</li>
+								{% endrecursetree %}
+							</ul>
+						</li>
+						<li class="{% ifequal active 7%}active {% endifequal %}">
+							<a href="{% url forum_index %}">Форум</a>
+						</li>
+						<li class="{% ifequal active 9%}active {% endifequal %}">
+							<a href="{% url contacts %}">Контакты</a>
+						</li>
+						<li class="drop {% ifequal active 10%}active {% endifequal %}">
+							<a href="{% url ad_board_url %}">Доска объявлений <i class="icon-angle-down"></i></a>
+							<ul style="display: none;">
+								{% for item in ad_board_sub_menu %}
+									<li style="position:relative;">
+										<a href="{{ item.get_absolute_url }}">{{ item.get_title }}</a>
+									</li>
+								{% endfor %}
+							</ul>
+						</li>
+						<li class="drop {% ifequal active 11%}active {% endifequal %}">
+							<a href="{% url electronic_catalog_url %}">Электронный каталог <i class="icon-angle-down"></i></a>
+							<ul style="display: none;">
+								{% recursetree electronic_catalog_sub_menu %}
+									<li style="position:relative;">
+										<a href="{{ node.get_absolute_url }}">{{ node.get_title }}{% if not node.is_leaf_node %} <i class="icon-angle-right"></i>{% endif %}</a>
+										{% if not node.is_leaf_node %}
+											<ul style="display: none;">{{ children }}</ul>
+										{% endif %}
+									</li>
+								{% endrecursetree %}
+							</ul>
+						</li>
+						<li>
+							<a href="http://test.tomuniversal.ru/" target="_blank">Образование</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<div class="container">
+				{% block content_all %}
+					{% block breadcrumb %}
+						<div class="block_item">
+							<ul class="breadcrumb">
+								<li><a href="/">Главная</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+								{% block breadcrumb_item %}
+									<li class="active">{{ request.flatpage.get_title }}</li>
+								{% endblock %}
+							</ul>
+						</div>
+					{% endblock %}
+					{% include "messages.html" %}
+					
+					{% block flatpage %}
+						<div class="margin_b">
+							<h1>{{ request.flatpage.get_title }}</h1>
+							{% if request.flatpage.get_content %}
+								{{ request.flatpage.get_content|safe }}
+							{% endif %}
+						</div>
+					{% endblock %}
+					
+					{% block content %}{% endblock %}
+				{% endblock %}
+				<div id="push"></div>
+			</div>
+	</div>
+	<footer>
+		<div class="container">
+			<div class="row-fluid">
+				<div class="span12">
+					<ul>
+						<li {% ifequal active 1%}class="active"{% endifequal %}>
+							<a href="/">Главная</a>
+						</li>
+						<li class="{% ifequal active 2%}active {% endifequal %}">
+							<a href="{% url news_url %}">Новости</a>
+						</li>
+						<li class="drop {% ifequal active 3%}active {% endifequal %}">
+							<a href="{% url article_url %}">Статьи</a>
+						</li>
+						<li class="{% ifequal active 4%}active {% endifequal %}">
+							<a href="{% url foto_url %}">Фото</a>
+						</li>
+						<li class="{% ifequal active 5%}active {% endifequal %}">
+							<a href="{% url video_url %}">Видео</a>
+						</li>
+						<li class="{% ifequal active 6%}active {% endifequal %}">
+							<a href="{% url audio_url %}">Аудио</a>
+						</li>
+						<li class="{% ifequal active 7%}active {% endifequal %}">
+							<a href="{% url forum_index %}">Форум</a>
+						</li>
+						<li class="{% ifequal active 9%}active {% endifequal %}">
+							<a href="{% url contacts %}">Контакты</a>
+						</li>
+						<li>
+							<a class="{% ifequal active 10%}active {% endifequal %}" href="{% url ad_board_url %}">Доска объявлений</a>
+						</li>
+						<li class="{% ifequal active 11%}active {% endifequal %}">
+							<a href="{% url electronic_catalog_url %}">Электронный каталог</a>
+						</li>
+						<li class="pull-right copyright">
+							© {% get_copyright 2013 %}&nbsp;&nbsp;<a href="/">{{ site }}</a>&nbsp;&nbsp;Все права защищены.
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</footer>
+	</body>
+</html>

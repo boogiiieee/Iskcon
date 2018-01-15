@@ -1,0 +1,34 @@
+{% load widget_tweaks %}
+
+{{ form.media }}
+
+{% if form.errors %}
+	<div class="alert alert-error">
+		<button type="button" class="close" data-dismiss="alert">&times;</button>
+		<strong>Ошибка!</strong> {% if form.non_field_errors %}{{ form.non_field_errors }}{% else %}Исправьте ошибки и повторите попытку.{% endif %}
+	</div>
+{% endif %}
+
+{% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+
+{% for field in form.visible_fields %}
+	<div class="control-group {% if field.errors %}error{% endif %}">
+		<div class="controls">
+			{% ifequal field|field_type 'booleanfield' %}
+				<label class="checkbox">
+					{{ field }} {{ field.label }}{% if field.help_text %}<span class="help-inline"><em class="muted">{{ field.help_text }}</em></span>{% endif %}
+				</label>
+			{% else %}
+				<label>{{ field.label }} {{ field }} {% if field.help_text %}<span class="help-inline"><em class="muted">{{ field.help_text }}</em></span>{% endif %}</label>
+			{% endifequal %}
+			{% if field.errors %}<div class="help-inline">{{ field.errors }}</div>{% endif %}
+		</div>
+	</div>
+{% endfor %}
+
+<div class="control-group">
+	<div class="controls">
+		<button type="submit" class="btn btn-warning">Сохранить</button>
+		<div class="clearfix"></div>
+	</div>
+</div>

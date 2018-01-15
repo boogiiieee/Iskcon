@@ -1,0 +1,414 @@
+{% extends "default.html" %}
+
+{% load thumbnail %}
+{% load adv_cache call_tag %}
+
+{% block title %}{{ request.flatpage.get_title|default:"Конференции" }}{% endblock %}
+{% block description %}{{ request.flatpage.get_description }}{% endblock %}
+{% block keywords %}{{ request.flatpage.get_keywords }}{% endblock %}
+
+{% block extra_media %}
+	
+	<link href="{{ STATIC_URL }}js/bootstrap-editable/bootstrap-editable/css/bootstrap-editable.css" rel="stylesheet">
+	
+	<script src="{{ STATIC_URL }}js/bootstrap-editable/bootstrap-editable/js/bootstrap-editable.js"></script>
+	<script src="{{ STATIC_URL }}js/bootstrap-editable/bootstrap-editable/js/locale/bootstrap-datepicker.ru.js"></script>
+	<script src="{{ STATIC_URL }}js/content_width.js"></script>
+	
+	<link rel="stylesheet" href="{{ STATIC_URL }}redactor/css/redactor.css" />
+	<script src="{{ STATIC_URL }}redactor/jquery-migrate.min.js"></script>
+	<script src="{{ STATIC_URL }}redactor/redactor.js"></script>
+    
+    <script src="{{ STATIC_URL }}js/jquery.formset.js"></script>
+	
+	<script>
+        function load_group_users(id) {
+            //Загружает список пользователей для группы. Ajax.
+            var elm = $('#id_public_user_list_'+id);
+            if ( elm.html() == '' ) {
+                $.ajax({
+                    type: "GET",
+                    url: "{% url conference_group_user_list %}",
+                    data: "group_id="+id,
+                    success: function(res){
+                        elm.html(res);
+                        elm.slideDown();
+                    },
+                    error: function(){
+                        elm.html('Не удалось загрузить данные. Повторите попытку.');
+                        elm.slideDown();
+                    }
+                });
+            } else {
+                elm.slideToggle();
+            }
+            return false;
+        }
+        
+        $(document).ready(function() {
+            $('.redactor').redactor({lang:'ru', focus:false});
+        });
+        
+        $.fn.editableform.buttons = '<button type="submit" class="btn btn-warning editable-submit"><i class="icon-ok icon-white"></i></button>' + '<button type="button" class="btn editable-cancel"><i class="icon-remove"></i></button>'; 
+	</script>
+{% endblock %}
+
+{% block content_all %}
+	{% block breadcrumb %}
+		<div class="row-fluid" id="breadcrumbs">
+			<div class="span12">
+				<div class="block_item">
+					<ul class="breadcrumb">
+						<li><a href="/">Главная</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+						{% block breadcrumb_item %}
+							<li class="active">{{ request.flatpage.get_title }}</li>
+						{% endblock %}
+					</ul>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+	
+	<div id="conference" class="row-fluid">
+		<div class="span4 left_menu">
+			{% block lefttopblock %}
+				<a class="btn btn-ico btn-warning" href="{% url conference_admin_contact %}" title="Создать конференцию">
+					<i class="icon-lightbulb pull-left"></i><div class="pull-left"><div><strong>СОЗДАТЬ КОНФЕРЕНЦИЮ</strong></div><div class="small">НАПИСАТЬ АДМИНИСТРАТОРУ</div></div>
+				</a>
+				<hr>
+			{% endblock %}
+			
+			{% block leftblock %}
+				{% if category_list|length %}
+					<ul class="profile_ls no_style_list conf">
+						<!-- Список категорий -->
+						{% for category in category_list %}
+							<li  class="margin_b_min">
+								<div><strong>{{ category.get_title }}</strong></div>
+								{% call category.get_group_list with request.user as group_list %}
+								{% if group_list|length %}
+									<ul class="category_li">
+										<!-- Список групп в категории -->
+										{% for group in group_list %}
+											{% call group.get_cache_key with request.user as cache_key %}
+											{% cache 86400 group_item_left cache_key group.modified %}
+												<li class="row-fluid">
+													<div class="block {% cycle ,bg %}">
+														<div class="pad">
+															{% call group.is_in_group with request.user as is_in_group %}
+															<div class="span9">
+																{% if group.is_public %}
+																	<i class="icon-globe" {% if is_in_group %}style="color:#FF9900" title="Открытая конференция. Вы подписаны на конференцию."{% else %}title="Открытая конференция" {% endif %}></i>
+																{% else %}
+																	<i class="icon-lock" {% if is_in_group %}style="color:#FF9900" title="Закрытая конференция. Вы подписаны на конференцию."{% else %}title="Закрытая конференция" {% endif %}></i>
+																{% endif %}
+																<a href="{% url conference_group group_id=group.id %}">{{ group.get_title }}</a>
+															</div>
+															<div class="span3 t_right">
+																{% call group.is_leader with request.user as is_leader %}
+																{% if is_in_group and not is_leader %}
+																	{% call group.is_frozen with request.user as is_frozen %}
+																	{% if is_frozen %}
+																		<a href="{% url conference_group_subscribe_frozen_del group_id=group.id %}" class="a_icon" title="Разморозить">
+																			<i class="icon-eye-close" title="Разморозить"></i>
+																		</a>
+																	{% else %}
+																		<a href="{% url conference_group_subscribe_frozen group_id=group.id %}" class="a_icon" title="Заморозить">
+																			<i class="icon-eye-open" title="Заморозить"></i>
+																		</a>
+																	{% endif %}
+																{% endif %}
+																
+																{% if group.has_perm_go_into_group %}
+																	{% if is_in_group %}
+																		{% if not is_leader %}
+																			<a href="{% url conference_group_subscribe_del group_id=group.id %}" class="a_icon" title="Отписаться" onclick="return confirm('Вы уверены?');">
+																				<i class="icon-remove" title="Отписаться"></i>
+																			</a>
+																		{% endif %}
+																	{% else %}
+																		<a href="{% url conference_group_subscribe group_id=group.id %}" class="a_icon" title="Подписаться">
+																			<i class="icon-bullhorn" title="Подписаться"></i>
+																		</a>
+																	{% endif %}
+																{% endif %}
+                                                                
+                                                                <!-- Список участников категории -->
+                                                                {% call group.is_staff with request.user as is_staff %}
+                                                                {% call group.get_user_list with request.user as user_list %}
+                                                                {% if user_list|length %}
+                                                                    {% if group.is_public_user_list or is_staff %}
+                                                                        <a class="a_icon" href="#" onclick="return load_group_users('{{ group.id }}');">
+                                                                            <i class="icon-group" title="Показать список пользователей"></i>
+                                                                        </a>
+                                                                     {% endif %}
+                                                                {% endif %}
+															</div>
+															<div class="clearfix"></div>
+														</div>
+													</div>
+                                                    <ul id="id_public_user_list_{{ group.id }}" style="display:none;"></ul>
+													<div class="clearfix"></div>
+												</li>
+											{% endcache %}
+										{% endfor %}
+									</ul>
+								{% endif %}
+							</li>
+						{% endfor %}
+					</ul>
+				{% endif %}
+			{% endblock %}
+		</div>
+		
+		<div class="span8 span12 conference_content trans">
+			<div id="right_block" class="conf_right_block margin_b">
+				{% include "messages.html" %}
+
+				{% block flatpage %}
+					{% block flatpage_title %}{% if request.flatpage.get_title %}<h1>{{ request.flatpage.get_title }}</h1>{% endif %}{% endblock %}
+					{% if request.flatpage.get_content %}
+						<div class="margin_b">{{ request.flatpage.get_content|safe }}</div>
+					{% endif %}
+				{% endblock %}
+				
+				{% block rightblock %}
+					<!-- Сообщения для лидера группы/администратора -->
+					{% if user_requests_list|length %}
+						<h2>Список заявок пользователей</h2>
+						<table class="table table_bordered_tr">
+							<thead>
+								<tr class="small_th">
+									<th><small>Заявка</small></th>
+									<th width="70" class="t_center"><small>Удалить</small></th>
+								</tr>
+							</thead>
+							{% for req in user_requests_list %}
+								<tr>
+									<td>
+										<div>
+											<span class="orange">{{ req.user.get_full_name|default:req.user.username }}</span> - <em class="muted">{{ req.get_created|date:"d.m.Y в H:i" }}{% if req.group.get_title %} - <a class="brown decor" href="{% url conference_group group_id=req.group.id %}">{{ req.group.get_title }}</a>{% endif %}</em>
+										</div>
+										<div><strong>{{ req.theme }}</strong></div>
+										<div>{{ req.text }}</div>
+									</td>
+									<td class="t_center"><a class="brown" href="{% url conference_admin_contact_del req_id=req.id %}" title="Удалить" onclick="return confirm('Вы уверены?');"><i class="icon-remove" title="Удалить"></i></a></td>
+								</tr>
+							{% endfor %}
+						</table>
+					{% endif %}
+					
+					<!-- Сообщения для модерации для лидера группы/администратора -->
+					{% if moderate_messages_list|length %}
+						<h2>Сообщения для модерации</h2>
+						<ul class="messages_list">
+							{% for msg in moderate_messages_list %}
+								<li id="sms_{{ msg.id }}" class="li">
+									<div class="media" >
+										<hr/>
+										<div class="pull-left">
+											{% thumbnail msg.user.get_profile.get_image "48x48" crop="center" format='PNG' as im %}
+												<a class="prettyPhoto" href="{{ MEDIA_URL }}{{ msg.user.get_profile.get_image }}" data-rel="prettyPhoto">
+													<img class="media-object img" src="{{ im.url }}"/>
+												</a>
+											{% empty %}
+												<img class="media-object img" src="{{ STATIC_URL }}img/no_foto.jpg"/>
+											{% endthumbnail %}
+										</div>
+										<div class="media-body">
+											<div class="mh95">
+												<div class="mh75">
+													<div class="row-fluid">
+														<div class="span10">
+															<div>
+																<strong>{{ msg.user.get_full_name|default:msg.user.username }}</strong> - 
+																<em><a class="brown decor" href="{% url conference_group group_id=msg.group.id %}">{{ msg.group.get_title }}</a>: {{ msg.get_theme }}</em>
+															</div>
+															<div>
+																<span class="t_center orange"><small>{{ msg.get_created|date:"d.m.Y" }}</small></span>&nbsp;-
+																<span class="t_center small">{{ msg.get_created|date:"H:i" }}</span>
+															</div>
+															{% if msg.get_file %}<i class="icon-paper-clip"></i> {% endif %}<a href="javascript:return false;" data-toggle="collapse" data-target="#sms_modal_{{ msg.id }}">подробнее</a>
+															<div id="sms_modal_{{ msg.id }}" class="collapse">
+																<div class="sms_body">{{ msg.get_text }}</div>
+																{% if msg.get_file %}<div><a href="{{ msg.get_file.url }}"><i class="icon-paper-clip"></i> Скачать прикрепленный файл</a></div><br>{% endif %}
+															</div>
+														</div>
+														<div class="span2">
+															<div class="pull-right t_center" style="width:70px">
+																<a style="text-decoration:none" class="brown" href="{% url conference_admin_moderate_ok msg_id=msg.id %}" title="Одобрить"><i class="icon-ok" title="Одобрить"></i></a>
+																<a style="text-decoration:none" class="brown" href="javascript:return false;" data-toggle="collapse" data-target="#cause_form_{{ msg.id }}" title="Удалить"><i class="icon-remove" title="Удалить"></i></a>
+															</div>
+														</div>
+														
+														<div class="clearfix"></div>
+														<div id="cause_form_{{ msg.id }}" class="collapse">
+															<form class="margin0" action="{% url conference_admin_moderate_del msg_id=msg.id %}" method="post">{% csrf_token %}
+																<hr/>
+																{% with cause_form as form %}
+																	{% include "conference/forform.html" %}
+																{% endwith %}
+                                                                <div class="control-group">
+                                                                    <div class="controls">
+                                                                        <button type="submit" class="btn btn-warning">Отправить</button>
+                                                                        <div class="clearfix"></div>
+                                                                    </div>
+                                                                </div>
+															</form>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="clearfix"></div>
+									</div>
+								</li>
+							{% endfor %}
+						</ul>
+						<hr style="margin-top:7px;">
+					{% endif %}
+				
+					{% if user_group_list|length %}
+						<h2>Список Активных конференций</h2>
+						<table class="table table_bordered_tr">
+							<thead>
+								<tr class="small_th">
+									<th><small>Конференция</small></th>
+									<th class="t_center"><small>Новых сообщений</small></th>
+									<th><small>Последнее сообщение</small></th>
+								</tr>
+							</thead>
+							{% for group in user_group_list %}
+								{% call group.get_count_new_messages with request.user as count_new_messages %}
+								{% with group.get_last_message as last_message %}
+									<tr>
+										<td>
+											<a class="brown decor" href="{% url conference_group group_id=group.id %}">{{ group.get_title }}</a>
+											<div class="small"><em class="muted">{{ group.get_description|truncatechars:"50" }}</em></div>
+										</td>
+										<td class="t_center">{{ count_new_messages }}</td>
+										<td>
+											{% if last_message %}
+												<span class="orange">{{ last_message.user.get_full_name|default:last_message.user.username }}&nbsp;<a href="{% url conference_group group_id=group.id %}#sms_{{ last_message.message.id }}" title="перейти к сообщению" class="brown icon-external-link"></a></span>
+												<div class="small"><em class="muted">{{ last_message.get_created|date:"d.m.Y в H:i" }}</em></div>
+											{% else %}
+												Нет сообщений
+											{% endif %}
+										</td>
+									</tr>
+								{% endwith %}
+							{% endfor %}
+						</table>
+					{% else %}
+						<h2>Инструкция пользования конференцией</h2>
+						<p>В левой колонке Вы видите список конференций.</p>
+						<p>Сейчас у Вас нет ни одной активной конференции, поэтому в правой колонке Вы видите инструкцию пользования конференцией.</p>
+						<p><strong>В конференциях приняты следующие обозначения:</strong></p>
+						<ul class="n_s_l margin_b_min">
+							<li>
+								<strong>Конференции:</strong>
+								<ul class="n_s_l margin_b_min">
+									<li>
+										<i class="icon-globe" title="Открытая конференция"></i> - Открытая конференция
+									</li>
+									<li>
+										<i class="icon-lock" title="Закрытая конференция"></i> - Закрытая конференция
+									</li>
+								</ul>
+							</li>
+							<li>
+								<strong>Действия с конференциями:</strong>
+								<ul class="n_s_l margin_b_min">
+									<li>
+										<i class="icon-globe" style="color:#FF9900" title="Вы подписаны на открытую конференцию"></i> - Вы подписаны на открытую конференцию
+									</li>
+									<li>
+										<i class="icon-lock" style="color:#FF9900" title="Вы подписаны на закрытую конференцию"></i> - Вы подписаны на закрытую конференцию
+									</li>
+									<li>
+										<i class="icon-bullhorn" title="Подписаться"></i> - Подписаться на конференцию
+									</li>
+									<li>
+										<i class="icon-remove" title="Отписаться"></i> - Отписаться от конференции
+									</li>
+									<li>
+										<i class="icon-eye-open" title="Заморозить"></i> - Заморозить конференцию (Вы можете заморозить подписку на некоторое время)
+									</li>
+									<li>
+										<i class="icon-eye-close" title="Заморозить"></i> - Разморозить конференцию
+									</li>
+								</ul>
+							</li>
+							<li>
+								<strong>Пользователи:</strong>
+								<ul class="n_s_l margin_b_min">
+									<li>
+										<i class="icon-user" style="color:#FF9900" title="Лидер конференции"></i> - Лидер конференции
+									</li>
+									<li>
+										<i class="icon-user" title="Пользователь конференции"></i> - Пользователь конференции
+									</li>
+								</ul>
+							</li>
+							<li>
+								<strong>Действия с пользователями:</strong>
+								<ul class="n_s_l">
+									
+									<li>
+										<i class="icon-group" title="Показать список пользователей"></i> - Показать список пользователей
+									</li>
+									{% if request.user.is_staff %}
+										<li>
+											<i class="icon-bullhorn" title="Подписать пользователя"></i> - Подписать пользователя (Доступно только лидеру конференции)
+										</li>
+										<li>
+											<i class="icon-remove" title="Отписать пользователя"></i> - Отписать пользователя (Доступно только лидеру конференции)
+										</li>
+										<li>
+											<i class="icon-lock" title="Заблокировать пользователя"></i> - Заблокировать пользователя (Доступно только лидеру конференции)
+										</li>
+										<li>
+											<i class="icon-lock" style="color:#FF9900" title="Пользователь заблокирован. Разблокировать?"></i> - Пользователь заблокирован. Разблокировать? (Доступно только лидеру конференции)
+										</li>
+									{% endif %}
+								</ul>
+							</li>
+						</ul>
+						<p>
+							Чтобы подписаться на конференцию кликните по названию выбранной Вами конференции в правом меню, и Вы попадете на страницу с описанием и с возможностью подписания на данную конференцию.
+							Также можно подписаться на нужную конференцию просто кликнув на значок <i class="icon-bullhorn" title="Подписаться"></i> в правом меню рядом с названием выбранной конференции.
+						</p>
+						<p>
+							После подписки на конференцию Вы сможете читать, писать, комментировать сообщения данной конференции. 
+						</p>
+						<p>
+							Чтобы создать конференцию нажмите на кнопку <a class="btn btn-warning" href="{% url conference_admin_contact %}"><i class="icon-lightbulb"></i> СОЗДАТЬ КОНФЕРЕНЦИЮ</a>
+							Далее Вам потребуется заполнить анкету и после обработки администратором сайта Ваша конференция будет опубликована на сайте.
+						</p>
+						<p>
+							Также Вы сможете получать уведомления о новых сообщениях в конференциях на e-mail, для этого в профиле пользователя поставьте галочку "Дублировать рассылку на почту".
+							Установите галочку "Получать все новые сообщения в одном письме" и Вы будете получать новые сообщения сообщений одним письмом раз в день.
+						</p>
+					{% endif %}
+				{% endblock %}
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

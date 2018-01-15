@@ -1,0 +1,37 @@
+{% extends "2col.html" %}
+{% load thumbnail %}
+
+{% block breadcrumb_item %}
+	<li class="active">{{ request.flatpage.get_title|default:"Доска объявлений" }}</li>
+{% endblock %}
+
+{% block leftblock %}
+	{% if items_list %}
+		{% for item in items_list %}
+			{% include "ad_board/ad.html" %}
+			<hr/>
+		{% endfor %}
+	{% else %}
+		<h2>Раздел в разработке</h2>
+	{% endif %}
+	
+	{% include "paginate.html" %}
+{% endblock %}
+
+
+{% block rightblock %}
+	{% if ad_board_sub_menu %}
+		<h5>Категории {% if cat or item %}<a class="btn btn-warning pull-right" style="margin-top:-5px;" href="/ad_board/category/{% if cat %}{{ cat.id }}{% else %}{{ item.category.id }}{% endif %}/add/">Добавить объявление</a>{% endif %}</h5>
+		<div class="list_cat">
+			<ul class="no_style_list">
+				{% for item in ad_board_sub_menu %}
+					<li {% ifequal cat.id item.id %}class="active"{% endifequal %}>
+						<i class="icon-angle-right"></i>
+						<a href="{{ item.get_absolute_url }}">{{ item.get_title }}</a>
+					</li>
+				{% endfor %}
+			</ul>
+		</div>
+	{% endif %}
+
+{% endblock %}

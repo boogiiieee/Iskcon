@@ -1,0 +1,18 @@
+{% extends "conference/index.html" %}
+{% block breadcrumb_item %}
+	<li><a href="{% url conference_index %}">Конференции</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+	<li class="active">{{ request.flatpage.get_title }}</li>
+{% endblock %}
+
+
+{% block rightblock %}
+	<form action="" method="post">{% csrf_token %}
+		{% include "conference/forform.html" %}
+        <div class="control-group">
+            <div class="controls">
+                <button type="submit" class="btn btn-warning">Отправить</button>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+	</form>
+{% endblock %}

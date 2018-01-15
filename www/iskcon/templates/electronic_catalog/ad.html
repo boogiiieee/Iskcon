@@ -1,0 +1,28 @@
+{% load thumbnail %}
+
+<div class="row-fluid">
+	<div class="media">
+		{% if item.get_image %}
+			<div class="pull-left ad_board_item">
+				{% thumbnail item.get_image "200x150" as im %}
+					<a class="img-polaroid prettyPhoto t_center" href="{{ MEDIA_URL }}{{ item.get_image }}" data-rel="prettyPhoto" title="{{ item.get_title }}">
+						<img src="{{ im.url }}" alt="{{ item.get_title }}">
+					</a>
+				{% endthumbnail %}
+			</div>
+		{% endif %}
+		<div class="media-body">
+			<div>
+				<div>
+					<i class="muted">{{ item.get_created }}</i><span class="pull-right label label-inverse">{{ item.get_all_cost }}</span>
+				</div>
+				<strong><a href="{{item.get_absolute_url }}">{{ item.get_title }}</a></strong>
+				
+			</div>
+			<div class="margin_b_min"><i>{{ item.announcement|linebreaks }}</i></div>
+			<a class="btn btn-warning margin_l pull-right" href="{{ item.get_absolute_url }}">Комментировать</a>
+			<a class="btn btn-danger pull-right" href="{{ item.get_order_url }}">Заказать</a>
+		</div>
+	</div>
+	
+</div>

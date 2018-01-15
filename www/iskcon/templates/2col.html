@@ -1,0 +1,63 @@
+{% extends "default.html" %}
+
+{% load news_tags thumbnail %}
+
+{% block title %}{{ request.flatpage.get_title }}{% endblock %}
+{% block description %}{{ request.flatpage.get_description }}{% endblock %}
+{% block keywords %}{{ request.flatpage.get_keywords }}{% endblock %}
+
+{% block extra_media %}{% endblock %}
+
+{% block content_all %}
+	{% block breadcrumb %}
+		<div class="row-fluid">
+			<div class="span12">
+				<div class="block_item">
+					<ul class="breadcrumb">
+						<li><a href="/">Главная</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+						{% block breadcrumb_item %}
+							<li class="active">{{ request.flatpage.get_title }}</li>
+						{% endblock %}
+					</ul>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
+	<div class="row-fluid">
+		<div class="span8">
+			<div id="left_block">
+				{% include "messages.html" %}
+
+				{% block flatpage %}
+					{% block flatpage_title %}{% if request.flatpage.get_title %}<h1>{{ request.flatpage.get_title }}</h1>{% endif %}{% endblock %}
+					{% if request.flatpage.get_content %}
+						<div class="margin_b">{{ request.flatpage.get_content|safe }}</div>
+					{% endif %}
+				{% endblock %}
+				{% block leftblock %}{% endblock %}
+			</div>
+		</div>
+		<div class="span4">
+			{% block rightblock %}{% endblock %}
+			{% get_news_list request.user.is_authenticated %}
+			{% if news_list %}
+				<h5>Последние новости</h5>
+				{% for item in news_list %}
+					<div class="row-fluid">
+						<div class="media">
+							<a class="pull-left" href="{{ item.get_absolute_url }}" title="{{ item.get_title }}">
+								{% if item.get_image %}
+									{% thumbnail item.get_image "65x65" crop="center" format='PNG' as im %}
+										<img class="media-object" src="{{ im.url }}" alt="{{ item.get_title }}"/>
+									{% endthumbnail %}
+								{% endif %}
+							</a>
+							<div class="media-heading"><a href="{{ item.get_absolute_url }}" title="{{ item.get_title }}">{{ item.get_title|truncatechars:'40' }}</a></div>
+							<small>{{ item.get_announcement|safe|truncatechars:'150'|linebreaks }}</small>
+						</div>
+					</div>
+				{% endfor %}
+			{% endif %}
+		</div>
+	</div>
+{% endblock %}

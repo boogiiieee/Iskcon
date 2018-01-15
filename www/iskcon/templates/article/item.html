@@ -1,0 +1,44 @@
+{% extends "article/all.html" %}
+{% load thumbnail comments  %}
+
+{% block title %}{{ item.get_title }}{% endblock %}
+{% block description %}{{ item.get_description }}{% endblock %}
+{% block keywords %}{{ item.get_keywords }}{% endblock %}
+
+{% block breadcrumb_item %}
+	<li><a href="{% url article_url %}">Статьи</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+	{% for cat in item.category.get_ancestors %}	
+		<li><a href="{{ cat.get_absolute_url }}">{{ cat.get_title }}</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+	{% endfor %}
+	<li><a href="{{ item.category.get_absolute_url }}">{{ item.category.get_title }}</a> <span class="divider"><i class="icon-angle-right"></i></span></li>
+	<li class="active">{{ item.get_title }}</li>
+{% endblock %}
+
+{% block leftblock %}
+	<div class="row-fluid">
+		<div class="span12">
+			<h1>{{ item.get_title }}</h1>
+		</div>
+	</div>
+				
+	<div class="media">
+		{% if item.get_image %}
+			<div class="pull-left">
+				{% thumbnail item.get_image "300x300" as im %}
+					<a class="pull-left prettyPhoto" href="{{ MEDIA_URL }}{{ item.get_image }}" data-rel="prettyPhoto" title="{{ item.get_title }}">
+						<img class="media-object" src="{{ im.url }}" alt="{{ item.get_title }}">
+					</a>
+				{% endthumbnail %}
+			</div>
+		{% endif %}
+		<div class="media-body">
+			<small><strong>{{ item.created_at|date:"d.m.Y" }}</strong></small>
+			<div>{{ item.text|safe }}</div>
+		</div>
+	</div>
+	{% render_comment_list for item %}
+
+	<div>
+		{% render_comment_form for item %}
+	</div>
+{% endblock %}
